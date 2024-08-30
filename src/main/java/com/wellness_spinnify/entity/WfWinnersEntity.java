@@ -21,7 +21,9 @@ public class WfWinnersEntity {
 	@Column(name = "WINNERS_NAME")
 	private String winnersname;
 	@Column(name = "WINNERS_ID")
-	private String WinnersId;
+	private String winnersId;
+	@Column(name = "WINNERS_CATEGORY")
+	private String winnersCategory;
 	@Column(name = "UPDATED_TIME")
 	private Timestamp updatedTime;
 

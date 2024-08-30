@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,20 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.opencsv.CSVReader;
 import com.wellness_spinnify.entity.WfCampaignEntity;
 import com.wellness_spinnify.entity.WfUserListEntity;
+import com.wellness_spinnify.entity.WfWinnersEntity;
 import com.wellness_spinnify.helper.WfSpinnifyHelper;
+import com.wellness_spinnify.model.StoreRequest;
 import com.wellness_spinnify.model.WfCampaignRequest;
 import com.wellness_spinnify.model.WfGetAllUserListResponse;
 import com.wellness_spinnify.model.WfUserListResponse;
 import com.wellness_spinnify.model.WfWinnersDownloadRequest;
 import com.wellness_spinnify.model.WfWinnersListResponse;
+import com.wellness_spinnify.model.WfWinnersRequest;
 import com.wellness_spinnify.repository.WfCampaignRepository;
 import com.wellness_spinnify.repository.WfSpinnifyRepository;
+import com.wellness_spinnify.repository.WfWinnersRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class WfSpinnifyService {
@@ -36,12 +43,15 @@ public class WfSpinnifyService {
 
 	WfCampaignRepository campaignRepository;
 
+	WfWinnersRepository winnersRepository;
+
 	@Autowired
 	public WfSpinnifyService(WfSpinnifyHelper helper, WfSpinnifyRepository repository,
-			WfCampaignRepository campaignRepository) {
+			WfCampaignRepository campaignRepository, WfWinnersRepository winnersRepository) {
 		this.helper = helper;
 		this.repository = repository;
 		this.campaignRepository = campaignRepository;
+		this.winnersRepository = winnersRepository;
 	}
 
 	public WfUserListResponse extraxtData(MultipartFile csvFile) {
@@ -140,6 +150,27 @@ public class WfSpinnifyService {
 			e.printStackTrace();
 		}
 		return allUserListResponses;
+	}
+
+	@Transactional
+	public WfUserListResponse winnners(Map<String, List<StoreRequest>> wfWinnersRequest) {
+		WfUserListResponse listResponse = new WfUserListResponse();
+		try {
+			List<WfWinnersEntity> allWinners = new ArrayList<>();
+			for (Map.Entry<String, List<StoreRequest>> entry : wfWinnersRequest.entrySet()) {
+				String winnerKey = entry.getKey();
+				List<WfWinnersEntity> winnersEntities = helper.convertToWinnersList(winnerKey, entry.getValue());
+				allWinners.addAll(winnersEntities);
+			}
+			winnersRepository.saveAll(allWinners);
+			listResponse.setStatus(true);
+			listResponse.setMessage("Winners saved successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			listResponse.setStatus(false);
+			listResponse.setMessage("Failed to save winners.");
+		}
+		return listResponse;
 	}
 
 }

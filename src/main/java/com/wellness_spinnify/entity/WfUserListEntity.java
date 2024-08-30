@@ -1,5 +1,7 @@
 package com.wellness_spinnify.entity;
 
+import java.sql.Timestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +23,8 @@ public class WfUserListEntity {
 	private String name;
 	@Column(name = "USER_ID")
 	private String userId;
+	@Column(name = "UPDATED_TIME")
+	private Timestamp updatedTime;
 	@Column(name = "IS_WINNERS")
 	private boolean isWinners;
 }
