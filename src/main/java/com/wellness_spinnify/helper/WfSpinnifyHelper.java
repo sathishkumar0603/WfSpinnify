@@ -9,6 +9,7 @@ import com.wellness_spinnify.entity.WfCampaignEntity;
 import com.wellness_spinnify.entity.WfUserListEntity;
 import com.wellness_spinnify.entity.WfWinnersEntity;
 import com.wellness_spinnify.model.WfCampaignRequest;
+import com.wellness_spinnify.model.WfGetAllUserListResponse;
 import com.wellness_spinnify.model.WfWinnersListResponse;
 import com.wellness_spinnify.repository.WfWinnersRepository;
 
@@ -42,6 +43,13 @@ public class WfSpinnifyHelper {
 		campaignEntity.setCeatedAt(Timestamp.valueOf(LocalDateTime.now()));
 		campaignEntity.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
 		return campaignEntity;
+	}
+
+	public WfGetAllUserListResponse convertToGetAllListResponse(WfUserListEntity wfUserListEntity) {
+		WfGetAllUserListResponse allUserListResponse = new WfGetAllUserListResponse();
+		allUserListResponse.setStoreId(wfUserListEntity.getUserId());
+		allUserListResponse.setStoreName(wfUserListEntity.getName());
+		return allUserListResponse;
 	}
 
 }

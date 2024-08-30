@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.wellness_spinnify.model.WfCampaignRequest;
+import com.wellness_spinnify.model.WfGetAllUserListResponse;
 import com.wellness_spinnify.model.WfUserListResponse;
 import com.wellness_spinnify.model.WfWinnersDownloadRequest;
 import com.wellness_spinnify.model.WfWinnersListResponse;
@@ -74,9 +75,9 @@ public class WfSinnifyController {
 		try {
 			listResponse = spinnifyService.saveCampaign(campaignRequest);
 			if (listResponse != null) {
-				return new ResponseEntity<>(listResponse,HttpStatus.OK);
-			}else {
-				return new ResponseEntity<>(listResponse,HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(listResponse, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(listResponse, HttpStatus.NOT_FOUND);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -84,21 +85,41 @@ public class WfSinnifyController {
 		}
 
 	}
+
 	@PostMapping("/downloadCsv")
-	public ResponseEntity<WfUserListResponse> download(@RequestBody List<WfWinnersDownloadRequest> winnersDownloadRequest) {
+	public ResponseEntity<WfUserListResponse> download(
+			@RequestBody List<WfWinnersDownloadRequest> winnersDownloadRequest) {
 		WfUserListResponse listResponse = null;
 		try {
 			listResponse = spinnifyService.downloadCsv(winnersDownloadRequest);
 			if (listResponse.isStatus()) {
-				return new ResponseEntity<>(listResponse,HttpStatus.OK);
-			}else {
-				return new ResponseEntity<>(listResponse,HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(listResponse, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(listResponse, HttpStatus.NOT_FOUND);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		
+
+	}
+
+	@GetMapping("/getAllList")
+	public ResponseEntity<List<WfGetAllUserListResponse>> getAllList() {
+		List<WfGetAllUserListResponse> allUserListResponse = null;
+		try {
+			allUserListResponse = spinnifyService.getAll();
+			if (!allUserListResponse.isEmpty()) {
+				return new ResponseEntity<>(allUserListResponse, HttpStatus.OK);
+
+			} else {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 }

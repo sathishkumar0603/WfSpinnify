@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import com.wellness_spinnify.entity.WfCampaignEntity;
 import com.wellness_spinnify.entity.WfUserListEntity;
 import com.wellness_spinnify.helper.WfSpinnifyHelper;
 import com.wellness_spinnify.model.WfCampaignRequest;
+import com.wellness_spinnify.model.WfGetAllUserListResponse;
 import com.wellness_spinnify.model.WfUserListResponse;
 import com.wellness_spinnify.model.WfWinnersDownloadRequest;
 import com.wellness_spinnify.model.WfWinnersListResponse;
@@ -122,6 +124,22 @@ public class WfSpinnifyService {
 			listResponse.setMessage("Download Failed: " + e.getMessage());
 		}
 		return listResponse;
+	}
+
+	public List<WfGetAllUserListResponse> getAll() {
+		List<WfGetAllUserListResponse> allUserListResponses = new ArrayList<>();
+		try {
+			List<WfUserListEntity> entities = repository.findAll();
+			if (!entities.isEmpty()) {
+				for (WfUserListEntity wfUserListEntity : entities) {
+					WfGetAllUserListResponse allUserListResponse = helper.convertToGetAllListResponse(wfUserListEntity);
+					allUserListResponses.add(allUserListResponse);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return allUserListResponses;
 	}
 
 }
