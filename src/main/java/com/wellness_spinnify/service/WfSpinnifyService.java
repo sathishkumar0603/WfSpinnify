@@ -70,13 +70,18 @@ public class WfSpinnifyService {
 			List<WfUserListEntity> elegibleUsers = repository.findByIsWinnersFalse();
 			Collections.shuffle(elegibleUsers);
 			List<WfUserListEntity> selectedWinners = elegibleUsers.stream().limit(5).toList();
-			for (WfUserListEntity wfUserListEntity : selectedWinners) {
-				helper.updateTheWinners(wfUserListEntity);
-				repository.save(wfUserListEntity);
+			if (!selectedWinners.isEmpty()) {
+				for (WfUserListEntity wfUserListEntity : selectedWinners) {
+					helper.updateTheWinners(wfUserListEntity);
+					repository.save(wfUserListEntity);
+				}
+				listResponse.setStatus(true);
+				listResponse.setMessage("WINNERS LIST GOT SUCCESSFULLY");
+				listResponse.setWinners(selectedWinners);
+			} else {
+				listResponse.setStatus(false);
+				listResponse.setMessage("WINNERS LIST IS NOT AVAILABLE");
 			}
-			listResponse.setStatus(true);
-			listResponse.setMessage("WINNERS LIST GOT SUCCESSFULLY");
-			listResponse.setWinners(selectedWinners);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
