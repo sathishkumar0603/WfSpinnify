@@ -9,5 +9,6 @@ public class WfWinnersDownloadRequest {
 
 	private String winnersId;
 	private String winnersName;
+	private String winnersCategory;
 
 }

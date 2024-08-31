@@ -144,7 +144,8 @@ public class WfSpinnifyService {
 
 			// Convert List<WfWinnersEntity> to List<WfWinnersCsvDto>
 			List<WfWinnersDownloadRequest> csvData = wfWinnersEntity.stream()
-					.map(entity -> new WfWinnersDownloadRequest(entity.getWinnersId(), entity.getWinnersname()))
+					.map(entity -> new WfWinnersDownloadRequest(entity.getWinnersId(), entity.getWinnersname(),
+							entity.getWinnersCategory()))
 					.collect(Collectors.toList());
 
 			// Path to save CSV file
@@ -157,7 +158,7 @@ public class WfSpinnifyService {
 
 			// Write data to CSV
 			csvMapper.writerFor(List.class).with(csvSchema).writeValue(csvFile, csvData);
-			
+
 			byte[] fileContent = Files.readAllBytes(csvFile.toPath());
 
 			// Encode the byte array to a Base64 string
