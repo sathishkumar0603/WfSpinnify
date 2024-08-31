@@ -139,30 +139,35 @@ public class WfSpinnifyService {
 		WfUserListResponse listResponse = new WfUserListResponse();
 
 		try {
-			// Fetch data from the repository
-			Timestamp latestUploadTime = winnersRepository.findLatestUpdatedTime();
-			List<WfWinnersEntity> wfWinnersEntity = winnersRepository.findByUpdatedTime(latestUploadTime);
+			// Path to save CSV file
+			Path path = Paths.get("C:\\Users\\satish.kumar\\Downloads\\customers-100.csv");
+			File csvFile = path.toFile();
+			int existingContentLength = 0;
+			if (csvFile.exists()) {
+				existingContentLength = helper.countRowsInCsv(csvFile);
+				System.out.println("Existing CSV Content Length: " + existingContentLength);
+			}
+			List<WfWinnersEntity> wfWinnersEntity = winnersRepository.findAll();
 
 			// Convert List<WfWinnersEntity> to List<WfWinnersCsvDto>
 			List<WfWinnersDownloadRequest> csvData = wfWinnersEntity.stream()
 					.map(entity -> new WfWinnersDownloadRequest(entity.getWinnersId(), entity.getWinnersname(),
 							entity.getWinnersCategory()))
 					.collect(Collectors.toList());
-
-			// Path to save CSV file
-			Path path = Paths.get("C:\\Users\\satish.kumar\\Downloads\\customers-100.csv");
-			File csvFile = path.toFile();
-
 			if (csvFile.exists()) {
 				csvFile.delete();
 			}
+			
+			List<WfWinnersDownloadRequest> dataToWrite = csvData.stream()
+                    .skip(existingContentLength)
+                    .collect(Collectors.toList());
 
 			// Create CSV Mapper and Schema
 			CsvMapper csvMapper = new CsvMapper();
 			CsvSchema csvSchema = csvMapper.schemaFor(WfWinnersDownloadRequest.class).withHeader();
 
 			// Write data to CSV
-			csvMapper.writerFor(List.class).with(csvSchema).writeValue(csvFile, csvData);
+			csvMapper.writerFor(List.class).with(csvSchema).writeValue(csvFile, dataToWrite);
 
 			byte[] fileContent = Files.readAllBytes(csvFile.toPath());
 
@@ -176,7 +181,6 @@ public class WfSpinnifyService {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			// Set failure response
 			listResponse.setStatus(false);
 			listResponse.setMessage("Download Failed: " + e.getMessage());
 		}

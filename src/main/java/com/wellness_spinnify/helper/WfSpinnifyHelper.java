@@ -1,5 +1,9 @@
 package com.wellness_spinnify.helper;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,12 +12,16 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.wellness_spinnify.entity.WfCampaignEntity;
 import com.wellness_spinnify.entity.WfUserListEntity;
 import com.wellness_spinnify.entity.WfWinnersEntity;
 import com.wellness_spinnify.model.StoreRequest;
 import com.wellness_spinnify.model.WfCampaignRequest;
 import com.wellness_spinnify.model.WfGetAllUserListResponse;
+import com.wellness_spinnify.model.WfWinnersDownloadRequest;
 import com.wellness_spinnify.model.WfWinnersListResponse;
 import com.wellness_spinnify.repository.WfWinnersRepository;
 
@@ -68,6 +76,20 @@ public class WfSpinnifyHelper {
 			entities.add(entity);
 		}
 		return entities;
+	}
+
+	@SuppressWarnings("unused")
+	public int countRowsInCsv(File csvFile) throws IOException {
+		int rowCount = 0;
+
+		try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+			String line;
+			br.readLine();
+			while ((line = br.readLine()) != null) {
+				rowCount++;
+			}
+		}
+		return rowCount;
 	}
 
 }
