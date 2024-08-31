@@ -140,7 +140,8 @@ public class WfSpinnifyService {
 
 		try {
 			// Fetch data from the repository
-			List<WfWinnersEntity> wfWinnersEntity = winnersRepository.findAll();
+			Timestamp latestUploadTime = winnersRepository.findLatestUpdatedTime();
+			List<WfWinnersEntity> wfWinnersEntity = winnersRepository.findByUpdatedTime(latestUploadTime);
 
 			// Convert List<WfWinnersEntity> to List<WfWinnersCsvDto>
 			List<WfWinnersDownloadRequest> csvData = wfWinnersEntity.stream()
@@ -151,6 +152,10 @@ public class WfSpinnifyService {
 			// Path to save CSV file
 			Path path = Paths.get("C:\\Users\\satish.kumar\\Downloads\\customers-100.csv");
 			File csvFile = path.toFile();
+
+			if (csvFile.exists()) {
+				csvFile.delete();
+			}
 
 			// Create CSV Mapper and Schema
 			CsvMapper csvMapper = new CsvMapper();
@@ -200,9 +205,11 @@ public class WfSpinnifyService {
 		WfUserListResponse listResponse = new WfUserListResponse();
 		try {
 			List<WfWinnersEntity> allWinners = new ArrayList<>();
+			Timestamp dateTime = Timestamp.valueOf(LocalDateTime.now());
 			for (Map.Entry<String, List<StoreRequest>> entry : wfWinnersRequest.entrySet()) {
 				String winnerKey = entry.getKey();
-				List<WfWinnersEntity> winnersEntities = helper.convertToWinnersList(winnerKey, entry.getValue());
+				List<WfWinnersEntity> winnersEntities = helper.convertToWinnersList(winnerKey, entry.getValue(),
+						dateTime);
 				allWinners.addAll(winnersEntities);
 			}
 			winnersRepository.saveAll(allWinners);

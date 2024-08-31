@@ -57,14 +57,14 @@ public class WfSpinnifyHelper {
 		return allUserListResponse;
 	}
 
-	public List<WfWinnersEntity> convertToWinnersList(String winnerKey, List<StoreRequest> stores) {
+	public List<WfWinnersEntity> convertToWinnersList(String winnerKey, List<StoreRequest> stores, Timestamp dateTime) {
 		List<WfWinnersEntity> entities = new ArrayList<>();
 		for (StoreRequest storeRequest : stores) {
 			WfWinnersEntity entity = new WfWinnersEntity();
 			entity.setWinnersCategory(winnerKey);
 			entity.setWinnersId(storeRequest.getStoreId());
 			entity.setWinnersname(storeRequest.getStoreName());
-			entity.setUpdatedTime(Timestamp.valueOf(LocalDateTime.now()));
+			entity.setUpdatedTime(dateTime);
 			entities.add(entity);
 		}
 		return entities;
