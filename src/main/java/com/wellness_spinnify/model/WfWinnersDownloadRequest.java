@@ -1,11 +1,13 @@
 package com.wellness_spinnify.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class WfWinnersDownloadRequest {
 
-	private int storeId;
-	private String storeName;
+	private String winnersId;
+	private String winnersName;
 
 }

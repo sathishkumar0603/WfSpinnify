@@ -23,10 +23,11 @@ public class WfSpinnifyHelper {
 	@Autowired
 	WfWinnersRepository wfWinnersRepository;
 
-	public WfUserListEntity convertToEntity(String[] line) {
+	public WfUserListEntity convertToEntity(String[] line, Timestamp dateTime) {
 		WfUserListEntity entity = new WfUserListEntity();
 		entity.setUserId(line[0]);
 		entity.setName(line[1]);
+		entity.setUpdatedTime(dateTime);
 		return entity;
 	}
 

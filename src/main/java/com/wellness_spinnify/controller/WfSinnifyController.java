@@ -2,7 +2,6 @@ package com.wellness_spinnify.controller;
 
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -11,14 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.wellness_spinnify.model.StoreRequest;
 import com.wellness_spinnify.model.WfCampaignRequest;
 import com.wellness_spinnify.model.WfGetAllUserListResponse;
 import com.wellness_spinnify.model.WfUserListResponse;
-import com.wellness_spinnify.model.WfWinnersDownloadRequest;
 import com.wellness_spinnify.model.WfWinnersListResponse;
-import com.wellness_spinnify.model.WfWinnersRequest;
 import com.wellness_spinnify.service.WfSpinnifyService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -90,12 +86,29 @@ public class WfSinnifyController {
 
 	}
 
-	@PostMapping("/downloadCsv")
-	public ResponseEntity<WfUserListResponse> download(
-			@RequestBody List<WfWinnersDownloadRequest> winnersDownloadRequest) {
+//	@PostMapping("/downloadCsv")
+//	public ResponseEntity<WfUserListResponse> download(
+//			@RequestBody List<WfWinnersDownloadRequest> winnersDownloadRequest) {
+//		WfUserListResponse listResponse = null;
+//		try {
+//			listResponse = spinnifyService.downloadCsv(winnersDownloadRequest);
+//			if (listResponse.isStatus()) {
+//				return new ResponseEntity<>(listResponse, HttpStatus.OK);
+//			} else {
+//				return new ResponseEntity<>(listResponse, HttpStatus.NOT_FOUND);
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//		}
+//
+//	}
+
+	@GetMapping("/downloadCsv")
+	public ResponseEntity<WfUserListResponse> download() {
 		WfUserListResponse listResponse = null;
 		try {
-			listResponse = spinnifyService.downloadCsv(winnersDownloadRequest);
+			listResponse = spinnifyService.downloadCsv();
 			if (listResponse.isStatus()) {
 				return new ResponseEntity<>(listResponse, HttpStatus.OK);
 			} else {

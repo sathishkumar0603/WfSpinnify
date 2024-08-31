@@ -4,16 +4,16 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.opencsv.CSVReader;
@@ -27,7 +27,6 @@ import com.wellness_spinnify.model.WfGetAllUserListResponse;
 import com.wellness_spinnify.model.WfUserListResponse;
 import com.wellness_spinnify.model.WfWinnersDownloadRequest;
 import com.wellness_spinnify.model.WfWinnersListResponse;
-import com.wellness_spinnify.model.WfWinnersRequest;
 import com.wellness_spinnify.repository.WfCampaignRepository;
 import com.wellness_spinnify.repository.WfSpinnifyRepository;
 import com.wellness_spinnify.repository.WfWinnersRepository;
@@ -56,22 +55,20 @@ public class WfSpinnifyService {
 
 	public WfUserListResponse extraxtData(MultipartFile csvFile) {
 		WfUserListResponse listResponse = new WfUserListResponse();
-		try {
-			try (CSVReader reader = new CSVReader(new InputStreamReader(csvFile.getInputStream()))) {
-				String[] line = reader.readNext();
-				while ((line = reader.readNext()) != null) {
-					WfUserListEntity userListEntity = helper.convertToEntity(line);
-					repository.save(userListEntity);
-				}
-				listResponse.setStatus(true);
-				listResponse.setMessage("FILE UPLOADED SUCCESSFULLY");
-			} catch (Exception e) {
-				e.printStackTrace();
-				listResponse.setStatus(false);
-				listResponse.setMessage("File upload failed: " + e.getMessage());
+
+		Timestamp dateTime = Timestamp.valueOf(LocalDateTime.now());
+		try (CSVReader reader = new CSVReader(new InputStreamReader(csvFile.getInputStream()))) {
+			String[] line = reader.readNext();
+			while ((line = reader.readNext()) != null) {
+				WfUserListEntity userListEntity = helper.convertToEntity(line, dateTime);
+				repository.save(userListEntity);
 			}
+			listResponse.setStatus(true);
+			listResponse.setMessage("FILE UPLOADED SUCCESSFULLY");
 		} catch (Exception e) {
 			e.printStackTrace();
+			listResponse.setStatus(false);
+			listResponse.setMessage("File upload failed: " + e.getMessage());
 		}
 		return listResponse;
 	}
@@ -113,23 +110,60 @@ public class WfSpinnifyService {
 		return listResponse;
 	}
 
-	public WfUserListResponse downloadCsv(List<WfWinnersDownloadRequest> winnersDownloadRequest) {
+//	public WfUserListResponse downloadCsv(List<WfWinnersDownloadRequest> winnersDownloadRequest) {
+//		WfUserListResponse listResponse = new WfUserListResponse();
+//
+//		try {
+//			Path path = Paths.get("C:\\Users\\satish.kumar\\Downloads\\customers-100.csv");
+//			// path.toFile() to convert the Path to a File object
+//			File csvFile = path.toFile();
+//			CsvMapper csvMapper = new CsvMapper();
+//			CsvSchema csvSchema = csvMapper.schemaFor(WfWinnersDownloadRequest.class).withHeader();
+//			// Writing the list to the CSV file
+//			csvMapper.writerFor(List.class).with(csvSchema).writeValue(csvFile, winnersDownloadRequest);
+//			listResponse.setStatus(true);
+//			listResponse.setMessage("Download Successfull");
+//			listResponse.setData(path.toString());
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			listResponse.setStatus(false);
+//			listResponse.setMessage("Download Failed: " + e.getMessage());
+//		}
+//		return listResponse;
+//	}
+//	
+	public WfUserListResponse downloadCsv() {
 		WfUserListResponse listResponse = new WfUserListResponse();
 
 		try {
+			// Fetch data from the repository
+			List<WfWinnersEntity> wfWinnersEntity = winnersRepository.findAll();
+
+			// Convert List<WfWinnersEntity> to List<WfWinnersCsvDto>
+			List<WfWinnersDownloadRequest> csvData = wfWinnersEntity.stream()
+					.map(entity -> new WfWinnersDownloadRequest(entity.getWinnersId(), entity.getWinnersname()))
+					.collect(Collectors.toList());
+
+			// Path to save CSV file
 			Path path = Paths.get("C:\\Users\\satish.kumar\\Downloads\\customers-100.csv");
-			// path.toFile() to convert the Path to a File object
 			File csvFile = path.toFile();
+
+			// Create CSV Mapper and Schema
 			CsvMapper csvMapper = new CsvMapper();
 			CsvSchema csvSchema = csvMapper.schemaFor(WfWinnersDownloadRequest.class).withHeader();
-			// Writing the list to the CSV file
-			csvMapper.writerFor(List.class).with(csvSchema).writeValue(csvFile, winnersDownloadRequest);
+
+			// Write data to CSV
+			csvMapper.writerFor(List.class).with(csvSchema).writeValue(csvFile, csvData);
+
+			// Set successful response
 			listResponse.setStatus(true);
-			listResponse.setMessage("Download Successfull");
+			listResponse.setMessage("Download Successful");
 			listResponse.setData(path.toString());
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			// Set failure response
 			listResponse.setStatus(false);
 			listResponse.setMessage("Download Failed: " + e.getMessage());
 		}
@@ -139,7 +173,8 @@ public class WfSpinnifyService {
 	public List<WfGetAllUserListResponse> getAll() {
 		List<WfGetAllUserListResponse> allUserListResponses = new ArrayList<>();
 		try {
-			List<WfUserListEntity> entities = repository.findAll();
+			Timestamp latestUploadTime = repository.findLatestUpdatedTime();
+			List<WfUserListEntity> entities = repository.findByUpdatedTime(latestUploadTime);
 			if (!entities.isEmpty()) {
 				for (WfUserListEntity wfUserListEntity : entities) {
 					WfGetAllUserListResponse allUserListResponse = helper.convertToGetAllListResponse(wfUserListEntity);
