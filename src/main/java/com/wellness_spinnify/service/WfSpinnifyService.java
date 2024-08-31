@@ -2,11 +2,13 @@ package com.wellness_spinnify.service;
 
 import java.io.File;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -155,11 +157,16 @@ public class WfSpinnifyService {
 
 			// Write data to CSV
 			csvMapper.writerFor(List.class).with(csvSchema).writeValue(csvFile, csvData);
+			
+			byte[] fileContent = Files.readAllBytes(csvFile.toPath());
+
+			// Encode the byte array to a Base64 string
+			String base64String = Base64.getEncoder().encodeToString(fileContent);
 
 			// Set successful response
 			listResponse.setStatus(true);
 			listResponse.setMessage("Download Successful");
-			listResponse.setData(path.toString());
+			listResponse.setData(base64String);
 
 		} catch (Exception e) {
 			e.printStackTrace();
