@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("/Spinnify")
 @CrossOrigin
-public class WfSinnifyController {
+public class WfSinnifyStoreController {
 
 	WfSpinnifyService spinnifyService;
 
-	public WfSinnifyController(WfSpinnifyService spinnifyService) {
+	public WfSinnifyStoreController(WfSpinnifyService spinnifyService) {
 		this.spinnifyService = spinnifyService;
 	}
 
