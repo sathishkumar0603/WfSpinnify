@@ -13,4 +13,6 @@ public interface WfWinnersRepository extends JpaRepository<WfWinnersEntity, Inte
 
 	@Query("SELECT MAX(p.updatedTime) FROM WfWinnersEntity p")
 	Timestamp findLatestUpdatedTime();
+
+	List<WfWinnersEntity> findByCampaignId(int maxId);
 }

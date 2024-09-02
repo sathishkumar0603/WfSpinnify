@@ -24,6 +24,10 @@ public class WfWinnersEntity {
 	private String winnersId;
 	@Column(name = "WINNERS_CATEGORY")
 	private String winnersCategory;
+	@Column(name = "CAMPAIGN_ID")
+	private int campaignId;
+	@Column(name = "CAMPAIGN_NAME")
+	private String campaignName;
 	@Column(name = "UPDATED_TIME")
 	private Timestamp updatedTime;
 

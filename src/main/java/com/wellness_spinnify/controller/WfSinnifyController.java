@@ -36,10 +36,12 @@ public class WfSinnifyController {
 	}
 
 	@PostMapping("/upload")
-	public ResponseEntity<WfUserListResponse> uploadFile(@RequestParam("csvFile") MultipartFile csvFile) {
+	public ResponseEntity<WfUserListResponse> uploadFile(@RequestParam("csvFile") MultipartFile csvFile,
+			@RequestParam("noOfSpins") int noOfSpins, @RequestParam("noOfWinners") int noOfWinners,
+			@RequestParam("campaignName") String campaignName) {
 		WfUserListResponse listResponse = null;
 		try {
-			listResponse = spinnifyService.extraxtData(csvFile);
+			listResponse = spinnifyService.extraxtData(csvFile, noOfSpins, noOfWinners, campaignName);
 			if (listResponse.isStatus()) {
 				return new ResponseEntity<>(listResponse, HttpStatus.OK);
 			} else {

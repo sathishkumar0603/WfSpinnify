@@ -7,12 +7,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,16 +60,20 @@ public class WfSpinnifyService {
 		this.winnersRepository = winnersRepository;
 	}
 
-	public WfUserListResponse extraxtData(MultipartFile csvFile) {
+	public WfUserListResponse extraxtData(MultipartFile csvFile, int noOfSpins, int noOfWinners, String campaignName) {
 		WfUserListResponse listResponse = new WfUserListResponse();
-
-		Timestamp dateTime = Timestamp.valueOf(LocalDateTime.now());
+		LocalDateTime dateTimes = LocalDateTime.now();
+		DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		Timestamp dateTime = Timestamp.valueOf(dateTimes.format(myFormatObj));
 		try (CSVReader reader = new CSVReader(new InputStreamReader(csvFile.getInputStream()))) {
 			String[] line = reader.readNext();
 			while ((line = reader.readNext()) != null) {
 				WfUserListEntity userListEntity = helper.convertToEntity(line, dateTime);
 				repository.save(userListEntity);
 			}
+			WfCampaignEntity campaignEntity = helper.convertToCampaignEntity(noOfSpins, noOfWinners, campaignName,
+					dateTime);
+			campaignRepository.save(campaignEntity);
 			listResponse.setStatus(true);
 			listResponse.setMessage("FILE UPLOADED SUCCESSFULLY");
 		} catch (Exception e) {
@@ -137,47 +146,18 @@ public class WfSpinnifyService {
 //	
 	public WfUserListResponse downloadCsv() {
 		WfUserListResponse listResponse = new WfUserListResponse();
-
 		try {
-			// Path to save CSV file
-			Path path = Paths.get("C:\\Users\\satish.kumar\\Downloads\\customers-100.csv");
-			File csvFile = path.toFile();
-			int existingContentLength = 0;
-			if (csvFile.exists()) {
-				existingContentLength = helper.countRowsInCsv(csvFile);
-				System.out.println("Existing CSV Content Length: " + existingContentLength);
+
+			String base64String = helper.convertToCsvFile();
+			if (!base64String.isEmpty()) {
+				listResponse.setStatus(true);
+				listResponse.setMessage("Download Successful");
+				listResponse.setData(base64String);
+			} else {
+				listResponse.setStatus(false);
+				listResponse.setMessage("Download Failed");
+				listResponse.setData(base64String);
 			}
-			List<WfWinnersEntity> wfWinnersEntity = winnersRepository.findAll();
-
-			// Convert List<WfWinnersEntity> to List<WfWinnersCsvDto>
-			List<WfWinnersDownloadRequest> csvData = wfWinnersEntity.stream()
-					.map(entity -> new WfWinnersDownloadRequest(entity.getWinnersId(), entity.getWinnersname(),
-							entity.getWinnersCategory()))
-					.collect(Collectors.toList());
-			if (csvFile.exists()) {
-				csvFile.delete();
-			}
-			
-			List<WfWinnersDownloadRequest> dataToWrite = csvData.stream()
-                    .skip(existingContentLength)
-                    .collect(Collectors.toList());
-
-			// Create CSV Mapper and Schema
-			CsvMapper csvMapper = new CsvMapper();
-			CsvSchema csvSchema = csvMapper.schemaFor(WfWinnersDownloadRequest.class).withHeader();
-
-			// Write data to CSV
-			csvMapper.writerFor(List.class).with(csvSchema).writeValue(csvFile, dataToWrite);
-
-			byte[] fileContent = Files.readAllBytes(csvFile.toPath());
-
-			// Encode the byte array to a Base64 string
-			String base64String = Base64.getEncoder().encodeToString(fileContent);
-
-			// Set successful response
-			listResponse.setStatus(true);
-			listResponse.setMessage("Download Successful");
-			listResponse.setData(base64String);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -210,10 +190,17 @@ public class WfSpinnifyService {
 		try {
 			List<WfWinnersEntity> allWinners = new ArrayList<>();
 			Timestamp dateTime = Timestamp.valueOf(LocalDateTime.now());
+			Optional<Integer> maxIdOptional = campaignRepository.findMaxId();
+			int maxId = 0;
+			if (maxIdOptional.isPresent()) {
+				maxId = maxIdOptional.get();
+				System.out.println("Max ID: " + maxId);
+			}
+			WfCampaignEntity campaignEntity = campaignRepository.findById(maxId);
 			for (Map.Entry<String, List<StoreRequest>> entry : wfWinnersRequest.entrySet()) {
 				String winnerKey = entry.getKey();
 				List<WfWinnersEntity> winnersEntities = helper.convertToWinnersList(winnerKey, entry.getValue(),
-						dateTime);
+						dateTime, campaignEntity);
 				allWinners.addAll(winnersEntities);
 			}
 			winnersRepository.saveAll(allWinners);

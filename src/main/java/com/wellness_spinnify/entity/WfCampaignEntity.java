@@ -18,11 +18,9 @@ public class WfCampaignEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID")
-	private int id;
-	@Column(name = "WINNERS_NAME")
-	private String winnersName;
-	@Column(name = "SPIN_TIMING")
-	private Timestamp spinTiming;
+	private Integer id;
+	@Column(name = "CAMPAIGN_NAME")
+	private String campaignName;
 	@Column(name = "NO_OF_WINNERS")
 	private int noOfWinners;
 	@Column(name = "NO_OF_SPINS")
