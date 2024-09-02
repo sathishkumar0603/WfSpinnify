@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import com.wellness_spinnify.entity.WfAmEntity;
 import com.wellness_spinnify.entity.WfCampaignEntity;
 import com.wellness_spinnify.entity.WfUserListEntity;
+import com.wellness_spinnify.model.WfGetAllAmListResponse;
 
 @Component
 public class WfAmHelper {
@@ -22,12 +23,20 @@ public class WfAmHelper {
 
 	public WfCampaignEntity convertToCampaignEntity(int noOfSpins, int noOfWinners, String campaignName,
 			Timestamp dateTime) {
-		WfCampaignEntity campaignEntity=new WfCampaignEntity();
+		WfCampaignEntity campaignEntity = new WfCampaignEntity();
 		campaignEntity.setCampaignName(campaignName);
 		campaignEntity.setCeatedAt(dateTime);
 		campaignEntity.setNoOfSpins(noOfSpins);
 		campaignEntity.setNoOfWinners(noOfWinners);
 		return campaignEntity;
+	}
+
+	public WfGetAllAmListResponse convertToGetAllAmListResponse(WfAmEntity wfUserListEntity) {
+		WfGetAllAmListResponse allAmListResponse = new WfGetAllAmListResponse();
+		allAmListResponse.setAmId(wfUserListEntity.getAmId());
+		allAmListResponse.setAmName(wfUserListEntity.getAmName());
+		allAmListResponse.setImage(wfUserListEntity.getImageUrl());
+		return allAmListResponse;
 	}
 
 }

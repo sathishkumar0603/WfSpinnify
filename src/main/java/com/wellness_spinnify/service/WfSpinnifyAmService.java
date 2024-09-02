@@ -4,6 +4,8 @@ import java.io.InputStreamReader;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import com.wellness_spinnify.entity.WfAmEntity;
 import com.wellness_spinnify.entity.WfCampaignEntity;
 import com.wellness_spinnify.entity.WfUserListEntity;
 import com.wellness_spinnify.helper.WfAmHelper;
+import com.wellness_spinnify.model.WfGetAllAmListResponse;
+import com.wellness_spinnify.model.WfGetAllUserListResponse;
 import com.wellness_spinnify.model.WfUserListResponse;
 import com.wellness_spinnify.repository.WfAmRepository;
 import com.wellness_spinnify.repository.WfCampaignRepository;
@@ -57,6 +61,24 @@ public class WfSpinnifyAmService {
 			listResponse.setMessage("File upload failed: " + e.getMessage());
 		}
 		return listResponse;
+	}
+
+	public List<WfGetAllAmListResponse> getAllAmList() {
+		List<WfGetAllAmListResponse> allAmListResponses = new ArrayList<>();
+		try {
+			Timestamp latestUploadTime = wfAmRepository.findLatestUpdatedTime();
+			List<WfAmEntity> entities = wfAmRepository.findByUpdatedTime(latestUploadTime);
+			if (!entities.isEmpty()) {
+				for (WfAmEntity wfUserListEntity : entities) {
+					WfGetAllAmListResponse allUserListResponse = amHelper
+							.convertToGetAllAmListResponse(wfUserListEntity);
+					allAmListResponses.add(allUserListResponse);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return allAmListResponses;
 	}
 
 }
