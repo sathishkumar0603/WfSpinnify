@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,13 +15,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.opencsv.CSVReader;
 import com.wellness_spinnify.entity.WfAmEntity;
+import com.wellness_spinnify.entity.WfAmWinnersEntity;
 import com.wellness_spinnify.entity.WfCampaignEntity;
 import com.wellness_spinnify.entity.WfUserListEntity;
+import com.wellness_spinnify.entity.WfWinnersEntity;
 import com.wellness_spinnify.helper.WfAmHelper;
+import com.wellness_spinnify.model.StoreRequest;
 import com.wellness_spinnify.model.WfGetAllAmListResponse;
 import com.wellness_spinnify.model.WfGetAllUserListResponse;
 import com.wellness_spinnify.model.WfUserListResponse;
+import com.wellness_spinnify.model.WfWinnerAmRequest;
+import com.wellness_spinnify.repository.WfAmListRepository;
 import com.wellness_spinnify.repository.WfAmRepository;
+import com.wellness_spinnify.repository.WfAmWinnersRepository;
 import com.wellness_spinnify.repository.WfCampaignRepository;
 
 @Service
@@ -33,6 +41,12 @@ public class WfSpinnifyAmService {
 
 	@Autowired
 	WfCampaignRepository campaignRepository;
+
+	@Autowired
+	WfAmListRepository amListRepository;
+
+	@Autowired
+	WfAmWinnersRepository wfAmWinnersRepository;
 
 	public Timestamp dateAndTime() {
 		LocalDateTime dateTimes = LocalDateTime.now();
@@ -79,6 +93,61 @@ public class WfSpinnifyAmService {
 			e.printStackTrace();
 		}
 		return allAmListResponses;
+	}
+
+	public WfUserListResponse saveAmWinnners(Map<String, List<WfWinnerAmRequest>> wfWinnersAmRequest) {
+		WfUserListResponse listResponse = new WfUserListResponse();
+		try {
+			List<WfAmWinnersEntity> allWinners = new ArrayList<>();
+			Timestamp dateTime = dateAndTime();
+			Optional<Integer> maxIdOptional = campaignRepository.findMaxId();
+			int maxId = 0;
+			if (maxIdOptional.isPresent()) {
+				maxId = maxIdOptional.get();
+			}
+			WfCampaignEntity campaignEntity = campaignRepository.findById(maxId);
+			for (Map.Entry<String, List<WfWinnerAmRequest>> entry : wfWinnersAmRequest.entrySet()) {
+				String winnerKey = entry.getKey();
+				List<WfAmWinnersEntity> winnersEntities = amHelper.convertToAmWinnersList(winnerKey, entry.getValue(),
+						dateTime, campaignEntity);
+				allWinners.addAll(winnersEntities);
+				wfAmWinnersRepository.saveAll(allWinners);
+			}
+			if (campaignEntity.getSpinStartsAt() == null) {
+				campaignEntity.setSpinStartsAt(dateTime);
+				campaignRepository.save(campaignEntity);
+			}
+			listResponse.setStatus(true);
+			listResponse.setMessage("Winners saved successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			listResponse.setStatus(false);
+			listResponse.setMessage("Failed to save winners.");
+		}
+		return listResponse;
+	}
+
+	public WfUserListResponse downloadAmCsv() {
+		WfUserListResponse listResponse = new WfUserListResponse();
+		try {
+
+			String base64String = amHelper.convertToAmCsvFile();
+			if (!base64String.isEmpty()) {
+				listResponse.setStatus(true);
+				listResponse.setMessage("Download Successful");
+				listResponse.setData(base64String);
+			} else {
+				listResponse.setStatus(false);
+				listResponse.setMessage("Download Failed");
+				listResponse.setData(base64String);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			listResponse.setStatus(false);
+			listResponse.setMessage("Download Failed: " + e.getMessage());
+		}
+		return listResponse;
 	}
 
 }
