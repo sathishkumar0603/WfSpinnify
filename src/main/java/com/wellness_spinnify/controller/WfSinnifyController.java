@@ -88,24 +88,6 @@ public class WfSinnifyController {
 
 	}
 
-//	@PostMapping("/downloadCsv")
-//	public ResponseEntity<WfUserListResponse> download(
-//			@RequestBody List<WfWinnersDownloadRequest> winnersDownloadRequest) {
-//		WfUserListResponse listResponse = null;
-//		try {
-//			listResponse = spinnifyService.downloadCsv(winnersDownloadRequest);
-//			if (listResponse.isStatus()) {
-//				return new ResponseEntity<>(listResponse, HttpStatus.OK);
-//			} else {
-//				return new ResponseEntity<>(listResponse, HttpStatus.NOT_FOUND);
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//
-//	}
-
 	@GetMapping("/downloadCsv")
 	public ResponseEntity<WfUserListResponse> download() {
 		WfUserListResponse listResponse = null;

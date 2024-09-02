@@ -25,6 +25,8 @@ public class WfCampaignEntity {
 	private int noOfWinners;
 	@Column(name = "NO_OF_SPINS")
 	private int noOfSpins;
+	@Column(name = "SPIN_STARTS_AT")
+	private Timestamp spinStartsAt;
 	@Column(name = "CREATED_AT")
 	private Timestamp ceatedAt;
 	@Column(name = "UPDATED_AT")

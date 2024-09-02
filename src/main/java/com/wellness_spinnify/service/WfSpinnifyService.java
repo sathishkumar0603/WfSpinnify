@@ -60,11 +60,15 @@ public class WfSpinnifyService {
 		this.winnersRepository = winnersRepository;
 	}
 
-	public WfUserListResponse extraxtData(MultipartFile csvFile, int noOfSpins, int noOfWinners, String campaignName) {
-		WfUserListResponse listResponse = new WfUserListResponse();
+	public Timestamp dateAndTime() {
 		LocalDateTime dateTimes = LocalDateTime.now();
 		DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		Timestamp dateTime = Timestamp.valueOf(dateTimes.format(myFormatObj));
+		return Timestamp.valueOf(dateTimes.format(myFormatObj));
+	}
+
+	public WfUserListResponse extraxtData(MultipartFile csvFile, int noOfSpins, int noOfWinners, String campaignName) {
+		WfUserListResponse listResponse = new WfUserListResponse();
+		Timestamp dateTime = dateAndTime();
 		try (CSVReader reader = new CSVReader(new InputStreamReader(csvFile.getInputStream()))) {
 			String[] line = reader.readNext();
 			while ((line = reader.readNext()) != null) {
@@ -189,7 +193,7 @@ public class WfSpinnifyService {
 		WfUserListResponse listResponse = new WfUserListResponse();
 		try {
 			List<WfWinnersEntity> allWinners = new ArrayList<>();
-			Timestamp dateTime = Timestamp.valueOf(LocalDateTime.now());
+			Timestamp dateTime = dateAndTime();
 			Optional<Integer> maxIdOptional = campaignRepository.findMaxId();
 			int maxId = 0;
 			if (maxIdOptional.isPresent()) {
@@ -203,7 +207,10 @@ public class WfSpinnifyService {
 						dateTime, campaignEntity);
 				allWinners.addAll(winnersEntities);
 			}
-			winnersRepository.saveAll(allWinners);
+			if (campaignEntity.getSpinStartsAt() == null) {
+				campaignEntity.setSpinStartsAt(dateTime);
+				winnersRepository.saveAll(allWinners);
+			}
 			listResponse.setStatus(true);
 			listResponse.setMessage("Winners saved successfully");
 		} catch (Exception e) {
