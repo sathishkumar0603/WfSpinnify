@@ -170,10 +170,11 @@ public class WfSpinnifyService {
 				List<WfWinnersEntity> winnersEntities = helper.convertToWinnersList(winnerKey, entry.getValue(),
 						dateTime, campaignEntity);
 				allWinners.addAll(winnersEntities);
+				winnersRepository.saveAll(allWinners);
 			}
 			if (campaignEntity.getSpinStartsAt() == null) {
 				campaignEntity.setSpinStartsAt(dateTime);
-				winnersRepository.saveAll(allWinners);
+				campaignRepository.save(campaignEntity);
 			}
 			listResponse.setStatus(true);
 			listResponse.setMessage("Winners saved successfully");
