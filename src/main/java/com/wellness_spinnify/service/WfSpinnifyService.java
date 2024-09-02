@@ -1,28 +1,17 @@
 package com.wellness_spinnify.service;
 
-import java.io.File;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.opencsv.CSVReader;
 import com.wellness_spinnify.entity.WfCampaignEntity;
 import com.wellness_spinnify.entity.WfUserListEntity;
@@ -32,7 +21,6 @@ import com.wellness_spinnify.model.StoreRequest;
 import com.wellness_spinnify.model.WfCampaignRequest;
 import com.wellness_spinnify.model.WfGetAllUserListResponse;
 import com.wellness_spinnify.model.WfUserListResponse;
-import com.wellness_spinnify.model.WfWinnersDownloadRequest;
 import com.wellness_spinnify.model.WfWinnersListResponse;
 import com.wellness_spinnify.repository.WfCampaignRepository;
 import com.wellness_spinnify.repository.WfSpinnifyRepository;
@@ -125,29 +113,6 @@ public class WfSpinnifyService {
 		return listResponse;
 	}
 
-//	public WfUserListResponse downloadCsv(List<WfWinnersDownloadRequest> winnersDownloadRequest) {
-//		WfUserListResponse listResponse = new WfUserListResponse();
-//
-//		try {
-//			Path path = Paths.get("C:\\Users\\satish.kumar\\Downloads\\customers-100.csv");
-//			// path.toFile() to convert the Path to a File object
-//			File csvFile = path.toFile();
-//			CsvMapper csvMapper = new CsvMapper();
-//			CsvSchema csvSchema = csvMapper.schemaFor(WfWinnersDownloadRequest.class).withHeader();
-//			// Writing the list to the CSV file
-//			csvMapper.writerFor(List.class).with(csvSchema).writeValue(csvFile, winnersDownloadRequest);
-//			listResponse.setStatus(true);
-//			listResponse.setMessage("Download Successfull");
-//			listResponse.setData(path.toString());
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			listResponse.setStatus(false);
-//			listResponse.setMessage("Download Failed: " + e.getMessage());
-//		}
-//		return listResponse;
-//	}
-//	
 	public WfUserListResponse downloadCsv() {
 		WfUserListResponse listResponse = new WfUserListResponse();
 		try {
@@ -198,7 +163,6 @@ public class WfSpinnifyService {
 			int maxId = 0;
 			if (maxIdOptional.isPresent()) {
 				maxId = maxIdOptional.get();
-				System.out.println("Max ID: " + maxId);
 			}
 			WfCampaignEntity campaignEntity = campaignRepository.findById(maxId);
 			for (Map.Entry<String, List<StoreRequest>> entry : wfWinnersRequest.entrySet()) {
