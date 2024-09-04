@@ -22,8 +22,14 @@ import com.wellness_spinnify.service.WfSpinnifyAmService;
 @RequestMapping("/areaSpinnify")
 public class WfSpinnifyAmController {
 
-	@Autowired
 	WfSpinnifyAmService spinnifyAmService;
+	
+	   
+	
+	@Autowired
+	public WfSpinnifyAmController(WfSpinnifyAmService spinnifyAmService) {
+		this.spinnifyAmService = spinnifyAmService;
+	}
 
 	@PostMapping("/areaUpload")
 	public ResponseEntity<WfUserListResponse> uploadFile(@RequestParam("csvFile") MultipartFile csvFile,
@@ -92,6 +98,5 @@ public class WfSpinnifyAmController {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
 	}
 }

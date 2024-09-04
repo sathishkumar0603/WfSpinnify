@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "WF_WINNERS_LIST")
+@Table(name = "WF_STORE_WINNERS_LIST")
 public class WfWinnersEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

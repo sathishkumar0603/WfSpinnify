@@ -12,6 +12,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -32,6 +33,7 @@ public class WfSpinnifyHelper {
 	WfWinnersRepository wfWinnersRepository;
 	WfCampaignRepository campaignRepository;
 
+	@Autowired
 	public WfSpinnifyHelper(WfWinnersRepository wfWinnersRepository, WfCampaignRepository campaignRepository) {
 		this.wfWinnersRepository = wfWinnersRepository;
 		this.campaignRepository = campaignRepository;

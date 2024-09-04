@@ -10,36 +10,31 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.wellness_spinnify.customexception.FileDeletionException;
 import com.wellness_spinnify.entity.WfAmEntity;
 import com.wellness_spinnify.entity.WfAmWinnersEntity;
 import com.wellness_spinnify.entity.WfCampaignEntity;
-import com.wellness_spinnify.entity.WfUserListEntity;
-import com.wellness_spinnify.entity.WfWinnersEntity;
-import com.wellness_spinnify.model.StoreRequest;
 import com.wellness_spinnify.model.WfAmWinnersRequest;
 import com.wellness_spinnify.model.WfGetAllAmListResponse;
 import com.wellness_spinnify.model.WfWinnerAmRequest;
-import com.wellness_spinnify.model.WfWinnersDownloadRequest;
 import com.wellness_spinnify.repository.WfAmWinnersRepository;
 import com.wellness_spinnify.repository.WfCampaignRepository;
 
 @Component
 public class WfAmHelper {
 
-	@Autowired
 	WfAmWinnersRepository amWinnersRepository;
+	WfCampaignRepository campaignRepository;
 
 	@Autowired
-	WfCampaignRepository campaignRepository;
+	public WfAmHelper(WfAmWinnersRepository amWinnersRepository, WfCampaignRepository campaignRepository) {
+		this.amWinnersRepository = amWinnersRepository;
+		this.campaignRepository = campaignRepository;
+	}
 
 	public WfAmEntity convertToAmEntity(String[] line, Timestamp dateTime) {
 		WfAmEntity entity = new WfAmEntity();
@@ -84,7 +79,7 @@ public class WfAmHelper {
 		return entities;
 	}
 
-	public String convertToAmCsvFile() throws StreamWriteException, DatabindException, IOException {
+	public String convertToAmCsvFile() throws Exception {
 		// Path to save CSV file
 		Path path = Paths.get("C:\\Users\\satish.kumar\\Downloads\\customers-100.csv");
 		File csvFile = path.toFile();
@@ -103,7 +98,7 @@ public class WfAmHelper {
 			try {
 				Files.delete(csvFile.toPath());
 			} catch (IOException e) {
-				throw new FileDeletionException("Failed to delete the file: " + csvFile.getPath(), e);
+				throw new FileDeletionException("FAILED TO DELETE THE FILE: " + csvFile.getPath(), e);
 			}
 		}
 
@@ -120,5 +115,4 @@ public class WfAmHelper {
 		// Encode the byte array to a Base64 string
 		return Base64.getEncoder().encodeToString(fileContent);
 	}
-
 }

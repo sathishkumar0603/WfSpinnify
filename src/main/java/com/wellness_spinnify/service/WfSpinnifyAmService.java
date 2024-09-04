@@ -8,21 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.opencsv.CSVReader;
 import com.wellness_spinnify.entity.WfAmEntity;
 import com.wellness_spinnify.entity.WfAmWinnersEntity;
 import com.wellness_spinnify.entity.WfCampaignEntity;
-import com.wellness_spinnify.entity.WfUserListEntity;
-import com.wellness_spinnify.entity.WfWinnersEntity;
 import com.wellness_spinnify.helper.WfAmHelper;
-import com.wellness_spinnify.model.StoreRequest;
 import com.wellness_spinnify.model.WfGetAllAmListResponse;
-import com.wellness_spinnify.model.WfGetAllUserListResponse;
 import com.wellness_spinnify.model.WfUserListResponse;
 import com.wellness_spinnify.model.WfWinnerAmRequest;
 import com.wellness_spinnify.repository.WfAmListRepository;
@@ -33,20 +27,22 @@ import com.wellness_spinnify.repository.WfCampaignRepository;
 @Service
 public class WfSpinnifyAmService {
 
-	@Autowired
 	WfAmHelper amHelper;
-
-	@Autowired
 	WfAmRepository wfAmRepository;
-
-	@Autowired
 	WfCampaignRepository campaignRepository;
-
-	@Autowired
 	WfAmListRepository amListRepository;
+	WfAmWinnersRepository wfAmWinnersRepository;
 
 	@Autowired
-	WfAmWinnersRepository wfAmWinnersRepository;
+	public WfSpinnifyAmService(WfAmHelper amHelper, WfAmRepository wfAmRepository,
+			WfCampaignRepository campaignRepository, WfAmListRepository amListRepository,
+			WfAmWinnersRepository wfAmWinnersRepository) {
+		this.amHelper = amHelper;
+		this.wfAmRepository = wfAmRepository;
+		this.campaignRepository = campaignRepository;
+		this.amListRepository = amListRepository;
+		this.wfAmWinnersRepository = wfAmWinnersRepository;
+	}
 
 	public Timestamp dateAndTime() {
 		LocalDateTime dateTimes = LocalDateTime.now();

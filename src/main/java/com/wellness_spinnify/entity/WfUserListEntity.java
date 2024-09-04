@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "WF_USERLIST")
+@Table(name = "WF_STORELIST")
 public class WfUserListEntity {
 
 	@Id
